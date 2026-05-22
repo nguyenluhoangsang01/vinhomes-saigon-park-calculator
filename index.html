@@ -537,7 +537,7 @@
               ><input id="donGia" placeholder="Ví dụ: 120.000.000/m²" />
             </div>
             <div class="field">
-              <label for="propertyPrice">Tổng giá / Giá chuẩn</label
+              <label for="propertyPrice">Tổng giá</label
               ><input
                 id="propertyPrice"
                 inputmode="numeric"
@@ -885,7 +885,7 @@
       function renderBasic() {
         const d = inputData();
         $("basicBody").innerHTML =
-          `<tr><th>Loại căn</th><td>${d.loaiCan}</td><th>Diện tích</th><td>${d.dienTich}</td></tr><tr><th>Đơn giá</th><td>${d.donGia}</td><th>Tổng giá / Giá chuẩn</th><td>${d.tongGia}</td></tr><tr><th>Ưu đãi 1</th><td>${d.uuDai1}</td><th>Ưu đãi 2</th><td>${d.uuDai2}</td></tr><tr><th>Ưu đãi 3</th><td>${d.uuDai3}</td><th>Ưu đãi 4</th><td>${d.uuDai4}</td></tr>`;
+          `<tr><th>Loại căn</th><td>${d.loaiCan}</td><th>Diện tích</th><td>${d.dienTich}</td></tr><tr><th>Đơn giá</th><td>${d.donGia}</td><th>Tổng giá</th><td>${d.tongGia}</td></tr><tr><th>Ưu đãi 1</th><td>${d.uuDai1}</td><th>Ưu đãi 2</th><td>${d.uuDai2}</td></tr><tr><th>Ưu đãi 3</th><td>${d.uuDai3}</td><th>Ưu đãi 4</th><td>${d.uuDai4}</td></tr>`;
       }
       function resetTables() {
         renderBasic();
@@ -1122,7 +1122,7 @@
           [
             pdfCell("Đơn giá", { bold: true }),
             pdfCell(info.donGia),
-            pdfCell("Tổng giá / Giá chuẩn", { bold: true }),
+            pdfCell("Tổng giá", { bold: true }),
             pdfMoney(price),
           ],
           [
