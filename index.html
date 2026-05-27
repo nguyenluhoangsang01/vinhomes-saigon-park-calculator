@@ -6,6 +6,7 @@
     <title>BTCLAND VIETNAM | Bảng tính Vinhomes Saigon Park</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
       :root {
         --bg: #f5f8f5;
@@ -429,6 +430,145 @@
         display: grid;
         gap: 7px;
       }
+      .modalOverlay {
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(8, 20, 13, 0.58);
+        backdrop-filter: blur(8px);
+      }
+
+      .modalOverlay.show {
+        display: flex;
+      }
+
+      .modalCard {
+        width: min(520px, 100%);
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.22);
+        overflow: hidden;
+        animation: modalUp 0.18s ease-out;
+      }
+
+      @keyframes modalUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .modalHead {
+        padding: 22px 22px 12px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .modalHead h3 {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.2;
+        color: var(--green2);
+        letter-spacing: -0.02em;
+      }
+
+      .modalHead p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .modalClose {
+        width: 38px;
+        height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--ink);
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .modalBody {
+        padding: 0 22px 22px;
+      }
+
+      .modalForm {
+        display: grid;
+        gap: 13px;
+      }
+
+      .modalForm label {
+        display: block;
+        font-weight: 900;
+        font-size: 14px;
+        margin-bottom: 7px;
+      }
+
+      .modalForm input {
+        width: 100%;
+        height: 52px;
+        border: 1px solid #c8d9cd;
+        border-radius: 15px;
+        background: #fbfffc;
+        color: var(--ink);
+        font:
+          700 16px "Segoe UI",
+          Arial,
+          sans-serif;
+        padding: 0 14px;
+        outline: none;
+      }
+
+      .modalForm input::placeholder {
+        color: #9bb0a3;
+        font-weight: 600;
+      }
+
+      .modalForm input:focus {
+        border-color: var(--green);
+        box-shadow: 0 0 0 4px rgba(14, 107, 66, 0.1);
+      }
+
+      .modalError {
+        display: none;
+        color: #b42318;
+        background: #fff4f2;
+        border: 1px solid #ffd6d0;
+        border-radius: 14px;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .modalNote {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+        margin: 2px 0 0;
+      }
+
+      .modalActions {
+        display: grid;
+        gap: 10px;
+        margin-top: 6px;
+      }
+
+      .modalActions .btn {
+        width: 100%;
+      }
       @media (max-width: 980px) {
         .heroGrid,
         .layout,
@@ -719,6 +859,84 @@
         </section>
       </div>
     </main>
+    <div class="modalOverlay" id="leadModal" aria-hidden="true">
+      <div
+        class="modalCard"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="leadModalTitle"
+      >
+        <div class="modalHead">
+          <div>
+            <h3 id="leadModalTitle">
+              Đăng Kí Ngay Nhận Nhiều Thông Tin Mới Nhất
+            </h3>
+            <p>
+              Vui lòng để lại thông tin để BTCLAND hỗ trợ tư vấn và gửi báo cáo
+              PDF.
+            </p>
+          </div>
+          <button
+            class="modalClose"
+            id="closeLeadModal"
+            type="button"
+            aria-label="Đóng"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="modalBody">
+          <form class="modalForm" id="leadForm">
+            <div>
+              <label for="leadName">Họ &amp; Tên</label>
+              <input
+                id="leadName"
+                type="text"
+                placeholder="Ví dụ: Nguyễn Văn A"
+                autocomplete="name"
+              />
+            </div>
+
+            <div>
+              <label for="leadPhone">Số điện thoại</label>
+              <input
+                id="leadPhone"
+                type="tel"
+                placeholder="Ví dụ: 0901234567"
+                autocomplete="tel"
+              />
+            </div>
+
+            <div>
+              <label for="leadEmail">Địa chỉ email</label>
+              <input
+                id="leadEmail"
+                type="email"
+                placeholder="Ví dụ: email@gmail.com"
+                autocomplete="email"
+              />
+            </div>
+
+            <div class="modalError" id="leadError"></div>
+
+            <p class="modalNote">
+              Sau khi bấm Đăng ký, hệ thống sẽ xuất báo cáo PDF theo dữ liệu bạn
+              đã nhập.
+            </p>
+
+            <div class="modalActions">
+              <button class="btn primary" id="leadSubmitBtn" type="submit">
+                Đăng ký
+              </button>
+              <button class="btn ghost" id="cancelLeadModal" type="button">
+                Hủy
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     <footer>
       <div class="container footerGrid">
         <div>
@@ -742,7 +960,16 @@
         errorBox = $("error"),
         pdfBtn = $("pdfBtn"),
         topPdfBtn = $("topPdfBtn"),
-        resetBtn = $("resetBtn");
+        resetBtn = $("resetBtn"),
+        leadModal = $("leadModal"),
+        leadForm = $("leadForm"),
+        leadName = $("leadName"),
+        leadPhone = $("leadPhone"),
+        leadEmail = $("leadEmail"),
+        leadError = $("leadError"),
+        leadSubmitBtn = $("leadSubmitBtn"),
+        closeLeadModal = $("closeLeadModal"),
+        cancelLeadModal = $("cancelLeadModal");
       const RENT_MIN = 20000000 * 48,
         RENT_MAX = 30000000 * 48;
       const moneyFmt = new Intl.NumberFormat("vi-VN", {
@@ -815,6 +1042,15 @@
           factors: [1, 1.045, 1.1, 1.14, 1.3],
         },
       ];
+      const EMAILJS_PUBLIC_KEY = "4aJAh7FM6TFl6Aj7i";
+      const EMAILJS_SERVICE_ID = "service_k6fk29i";
+      const EMAILJS_TEMPLATE_ID = "template_tulxce6";
+
+      if (window.emailjs) {
+        emailjs.init({
+          publicKey: EMAILJS_PUBLIC_KEY,
+        });
+      }
       function onlyDigits(v) {
         return String(v || "").replace(/[^0-9]/g, "");
       }
@@ -1089,7 +1325,105 @@
           margin: [0, 8, 0, 14],
         };
       }
-      function exportPDF() {
+      function openLeadModal() {
+        const { raw, price } = getPrice();
+
+        if (!raw || !Number.isFinite(price) || price <= 0) {
+          errorBox.style.display = "block";
+          priceInput.focus();
+          return;
+        }
+
+        leadError.style.display = "none";
+        leadError.textContent = "";
+        leadModal.classList.add("show");
+        leadModal.setAttribute("aria-hidden", "false");
+
+        setTimeout(() => {
+          leadName.focus();
+        }, 80);
+      }
+
+      function hideLeadModal() {
+        leadModal.classList.remove("show");
+        leadModal.setAttribute("aria-hidden", "true");
+      }
+
+      function cleanPhone(value) {
+        return String(value || "").replace(/[\s.-]/g, "");
+      }
+
+      function getLeadData() {
+        return {
+          name: leadName.value.trim(),
+          phone: cleanPhone(leadPhone.value),
+          email: leadEmail.value.trim(),
+        };
+      }
+
+      function validateLeadData(data) {
+        if (!data.name) {
+          return "Vui lòng nhập Họ & Tên.";
+        }
+
+        if (!/^(0|\+84|84)(3|5|7|8|9)[0-9]{8}$/.test(data.phone)) {
+          return "Vui lòng nhập số điện thoại hợp lệ.";
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+          return "Vui lòng nhập địa chỉ email hợp lệ.";
+        }
+
+        return "";
+      }
+      async function sendLeadEmail(customer) {
+        if (!window.emailjs) {
+          throw new Error(
+            "Không tải được EmailJS. Vui lòng kiểm tra Internet.",
+          );
+        }
+
+        const { raw, price } = getPrice();
+
+        if (!raw || !Number.isFinite(price) || price <= 0) {
+          throw new Error("Giá bất động sản không hợp lệ.");
+        }
+
+        const info = inputData();
+        const d = calcData(price);
+        const registeredAt = new Date().toLocaleString("vi-VN");
+
+        const templateParams = {
+          to_email: "btclandvn1@gmail.com",
+
+          customer_name: customer.name,
+          customer_phone: customer.phone,
+          customer_email: customer.email,
+
+          project_name: "Vinhomes Saigon Park",
+          total_price: money(price),
+          base_a: money(d.baseA),
+          rent_min: money(RENT_MIN),
+          rent_max: money(RENT_MAX),
+
+          loai_can: info.loaiCan,
+          dien_tich: info.dienTich,
+          don_gia: info.donGia,
+          uu_dai_1: info.uuDai1,
+          uu_dai_2: info.uuDai2,
+          uu_dai_3: info.uuDai3,
+          uu_dai_4: info.uuDai4,
+
+          registered_at: registeredAt,
+        };
+
+        return emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID,
+          templateParams,
+        );
+      }
+      function exportPDF(customer = null) {
         const { raw, price } = getPrice();
         if (!raw || !Number.isFinite(price) || price <= 0) {
           errorBox.style.display = "block";
@@ -1173,6 +1507,22 @@
           pdfMoney(g.aMax),
           pdfMoney(g.maxTotal, { bold: true, color: "#0a6b42" }),
         ]);
+        const customerRows = customer
+          ? [
+              [
+                pdfCell("Họ & Tên", { bold: true }),
+                pdfCell(customer.name),
+                pdfCell("Số điện thoại", { bold: true }),
+                pdfCell(customer.phone),
+              ],
+              [
+                pdfCell("Email", { bold: true }),
+                pdfCell(customer.email),
+                pdfCell("Thời điểm đăng ký", { bold: true }),
+                pdfCell(generatedAt),
+              ],
+            ]
+          : [];
         const formulaRows = [
           [pdfCell("Vốn tự có 30%", { bold: true }), pdfCell("Tổng giá × 30%")],
           [pdfCell("Vốn tự có 20%", { bold: true }), pdfCell("Tổng giá × 20%")],
@@ -1212,6 +1562,21 @@
                   basicRows,
                   [80, 140, 110, 140],
                 ),
+
+                ...(customer
+                  ? [
+                      {
+                        text: "Thông tin khách hàng đăng ký",
+                        style: "subTitle",
+                      },
+                      makeTable(
+                        ["Thông tin", "Giá trị", "Thông tin", "Giá trị"],
+                        customerRows,
+                        [90, 150, 110, 150],
+                      ),
+                    ]
+                  : []),
+
                 { text: "Chỉ số chính", style: "subTitle" },
                 makeTable(["Chỉ số chính", "Giá trị"], kpiRows, [160, 180]),
               ],
@@ -1383,8 +1748,58 @@
           .createPdf(docDefinition)
           .download(`BTCLAND_Vinhomes_Saigon_Park_Bao_cao_${raw}.pdf`);
       }
-      pdfBtn.addEventListener("click", exportPDF);
-      topPdfBtn.addEventListener("click", exportPDF);
+      pdfBtn.addEventListener("click", openLeadModal);
+      topPdfBtn.addEventListener("click", openLeadModal);
+      closeLeadModal.addEventListener("click", hideLeadModal);
+      cancelLeadModal.addEventListener("click", hideLeadModal);
+
+      leadModal.addEventListener("click", (event) => {
+        if (event.target === leadModal) {
+          hideLeadModal();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && leadModal.classList.contains("show")) {
+          hideLeadModal();
+        }
+      });
+
+      leadForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const customer = getLeadData();
+        const errorMessage = validateLeadData(customer);
+
+        if (errorMessage) {
+          leadError.textContent = errorMessage;
+          leadError.style.display = "block";
+          return;
+        }
+
+        leadError.style.display = "none";
+        leadSubmitBtn.disabled = true;
+        leadSubmitBtn.textContent = "Đang gửi thông tin...";
+
+        try {
+          await sendLeadEmail(customer);
+
+          hideLeadModal();
+          exportPDF(customer);
+        } catch (error) {
+          console.error("EmailJS error:", error);
+
+          leadError.textContent =
+            "EmailJS lỗi: " +
+            (error?.status ? error.status + " - " : "") +
+            (error?.text || error?.message || JSON.stringify(error));
+
+          leadError.style.display = "block";
+        } finally {
+          leadSubmitBtn.disabled = false;
+          leadSubmitBtn.textContent = "Đăng ký";
+        }
+      });
       resetTables();
     </script>
   </body>
